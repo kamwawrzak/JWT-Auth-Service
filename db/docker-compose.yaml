@@ -14,16 +14,9 @@ services:
     volumes:
       - ./data:/var/lib/mysql
       - ./initdb:/docker-entrypoint-initdb.d
+    networks:
+      - auth_service_network
 
-  migrate:
-    image: migrate/migrate
-    depends_on:
-      - auth-service-db
-    volumes:
-      - ./migrations:/migrations
-    command:
-      - "-path"
-      - "/migrations"
-      - "-database"
-      - "mysql://root:root_password@tcp(auth-service-db:3306)/users_db"
-      - "up"
+networks:
+  auth_service_network:
+    driver: bridge
