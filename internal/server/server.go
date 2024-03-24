@@ -3,6 +3,10 @@ package server
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/sirupsen/logrus"
+
+	"github.com/kamwawrzak/jwt-auth-service/internal/config"
 )
 
 type authenticator interface {
@@ -10,14 +14,16 @@ type authenticator interface {
 }
 
 type server struct {
+	log *logrus.Logger
 	port int
 	mux *http.ServeMux
 	handler authenticator
 }
 
-func NewServer(port int, handler authenticator) *server {
+func NewServer(cfg config.ServerCfg, log *logrus.Logger, handler authenticator) *server {
 	return &server{
-		port: port,
+		log: log,
+		port: cfg.Port,
 		mux: http.NewServeMux(),
 		handler: handler,
 	}
@@ -25,6 +31,7 @@ func NewServer(port int, handler authenticator) *server {
 
 func (s *server) Start() error {
 	s.registerEndpoints()
+	s.log.WithField("port", s.port).Info("Starting http server")
 	err := http.ListenAndServe(fmt.Sprintf(":%d", s.port), s.mux)
 	if err != nil {
 		return err
