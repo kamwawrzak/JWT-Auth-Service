@@ -11,17 +11,18 @@ import (
 
 type authenticator interface {
 	Ping(w http.ResponseWriter, r *http.Request)
+	SignUp(w http.ResponseWriter, r *http.Request)
 }
 
-type server struct {
+type Server struct {
 	log *logrus.Logger
 	port int
 	mux *http.ServeMux
 	handler authenticator
 }
 
-func NewServer(cfg config.ServerCfg, log *logrus.Logger, handler authenticator) *server {
-	return &server{
+func NewServer(cfg config.ServerCfg, log *logrus.Logger, handler authenticator) *Server {
+	return &Server{
 		log: log,
 		port: cfg.Port,
 		mux: http.NewServeMux(),
@@ -29,7 +30,7 @@ func NewServer(cfg config.ServerCfg, log *logrus.Logger, handler authenticator) 
 	}
 }
 
-func (s *server) Start() error {
+func (s *Server) Start() error {
 	s.registerEndpoints()
 	s.log.WithField("port", s.port).Info("Starting http server")
 	err := http.ListenAndServe(fmt.Sprintf(":%d", s.port), s.mux)
@@ -39,6 +40,7 @@ func (s *server) Start() error {
 	return nil
 }
 
-func (s *server) registerEndpoints() {
+func (s *Server) registerEndpoints() {
 	s.mux.HandleFunc("GET /ping", s.handler.Ping)
+	s.mux.HandleFunc("POST /signup", s.handler.SignUp)
 }

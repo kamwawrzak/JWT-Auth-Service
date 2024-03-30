@@ -1,13 +1,55 @@
 package server
 
-import "net/http"
+import (
+	"context"
+	"encoding/json"
+	"net/http"
+	"time"
 
-type authHandler struct {}
+	"github.com/kamwawrzak/jwt-auth-service/internal/model"
+)
 
-func NewAuthHandler() *authHandler{
-	return &authHandler{}
+type userCreator interface {
+	CreateUser(ctx context.Context, u *model.User) (*model.User, error)
 }
 
-func (a *authHandler) Ping(w http.ResponseWriter, r *http.Request) {
+type AuthHandler struct {
+	SignupSvc userCreator
+}
+
+func NewAuthHandler(signupSvc userCreator) *AuthHandler{
+	return &AuthHandler{
+		SignupSvc: signupSvc,
+	}
+}
+
+func (a *AuthHandler) Ping(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusOK)
+}
+
+func (a *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+    ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+    defer cancel()
+
+	var user model.User
+	
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	_, err = a.SignupSvc.CreateUser(ctx, &user)
+	if err != nil {
+		switch err.Error() {
+		case "already exist":
+			http.Error(w, "User already exists", http.StatusConflict)
+		default:
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }
