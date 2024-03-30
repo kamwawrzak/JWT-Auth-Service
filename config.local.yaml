@@ -1,2 +1,20 @@
 server:
   port: 8089
+
+database:
+  reader:
+    host: localhost
+    port: 3306
+    user: test_user
+    password: test_password
+    database: users_db
+  writer:
+    host: localhost
+    port: 3306
+    user: test_user
+    password: test_password
+    database: users_db
+  connections:
+    maxConnLifetimeInMinutes: 3
+    maxOpenConns: 10
+    maxIdleConns: 10 
