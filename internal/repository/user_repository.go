@@ -21,14 +21,12 @@ func NewUserRepository()*userRepository{
 
 func (ur *userRepository) GetUser(ctx context.Context, db *sql.DB, id string) (*model.User, error) {
 	var user model.User
-	query := "SELECT id, name FROM users WHERE id = ?"
+	query := "SELECT id, email, password_hash, created_at FROM users WHERE id = ?"
 	err := db.QueryRow(query, id).Scan(
 		&user.Id,
 		&user.Email,
 		&user.Password,
 		&user.CreatedAt,
-		&user.UpdatedAt,
-		&user.DeletedAt,
 	)
     if err != nil {
         return nil, err

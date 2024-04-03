@@ -24,8 +24,12 @@ func NewSignupService(dbConn *sql.DB, userR userCreator) *SignupService{
 }
 
 func (s *SignupService) CreateUser(ctx context.Context, u *model.User) (*model.User, error){
-	// hash password
-	u.Password = "hashed"
+	hashedPassword, err := hashPassword(u.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	u.Password = hashedPassword
 	user, err := s.userR.CreateUser(ctx, s.db, u)
 	if err != nil {
 		return nil, err

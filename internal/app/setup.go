@@ -26,7 +26,7 @@ func DbConn(cfg *config.DbCfg) (*sql.DB, error) {
 	writerCfg := cfg.Writer
 	connsCfg := cfg.Connections
 	dsn := fmt.Sprintf(
-		"%s:%s@tcp(%s:%d)/%s",
+		"%s:%s@tcp(%s:%d)/%s?parseTime=true",
 	 	writerCfg.User,
 	 	writerCfg.Password,
 	 	writerCfg.Host,
