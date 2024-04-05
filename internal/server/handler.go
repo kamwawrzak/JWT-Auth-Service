@@ -82,6 +82,5 @@ func (a *AuthHandler) Login(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	return 
+	w.WriteHeader(http.StatusOK) 
 }
