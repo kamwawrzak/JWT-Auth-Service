@@ -35,6 +35,22 @@ func (ur *userRepository) GetUser(ctx context.Context, db *sql.DB, id string) (*
 	return &user, nil
 }
 
+func (ur *userRepository) GetUserByEmail(ctx context.Context, db *sql.DB, email string) (*model.User, error) {
+	var user model.User
+	query := "SELECT id, email, password_hash, created_at FROM users WHERE email = ?"
+	err := db.QueryRow(query, email).Scan(
+		&user.Id,
+		&user.Email,
+		&user.Password,
+		&user.CreatedAt,
+	)
+    if err != nil {
+        return nil, err
+    }
+
+	return &user, nil
+}
+
 func (ur *userRepository) CreateUser(ctx context.Context, dbConn *sql.DB, newUser *model.User) (*model.User, error) {
 	query := "INSERT INTO `users` (`email`, `password_hash`) VALUES (?, ?)"
 	result, err := dbConn.ExecContext(ctx, query, newUser.Email, newUser.Password)

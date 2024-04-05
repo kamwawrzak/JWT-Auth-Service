@@ -12,6 +12,7 @@ import (
 type authenticator interface {
 	Ping(w http.ResponseWriter, r *http.Request)
 	SignUp(w http.ResponseWriter, r *http.Request)
+	Login(w http.ResponseWriter, r *http.Request)
 }
 
 type Server struct {
@@ -43,4 +44,5 @@ func (s *Server) Start() error {
 func (s *Server) registerEndpoints() {
 	s.mux.HandleFunc("GET /ping", s.handler.Ping)
 	s.mux.HandleFunc("POST /signup", s.handler.SignUp)
+	s.mux.HandleFunc("POST /login", s.handler.Login)
 }

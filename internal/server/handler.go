@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -13,13 +14,20 @@ type userCreator interface {
 	CreateUser(ctx context.Context, u *model.User) (*model.User, error)
 }
 
-type AuthHandler struct {
-	SignupSvc userCreator
+type userVerifier interface {
+	Login(ctx context.Context, email, password string) (string, error)
 }
 
-func NewAuthHandler(signupSvc userCreator) *AuthHandler{
+type AuthHandler struct {
+	SignupSvc userCreator
+	LoginSvc userVerifier
+}
+
+
+func NewAuthHandler(signupSvc userCreator, loginSvc userVerifier) *AuthHandler{
 	return &AuthHandler{
 		SignupSvc: signupSvc,
+		LoginSvc: loginSvc,
 	}
 }
 
@@ -52,4 +60,27 @@ func (a *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+func (a *AuthHandler) Login(w http.ResponseWriter, r *http.Request){
+	ctx := r.Context()
+    ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+    defer cancel()
+
+	var user model.User
+	
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	jwt, err := a.LoginSvc.Login(ctx, user.Email, user.Password)
+	fmt.Println("JWT: ", jwt)
+	if err != nil {
+		http.Error(w, "Authorization failed", http.StatusUnauthorized)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK) 
 }
