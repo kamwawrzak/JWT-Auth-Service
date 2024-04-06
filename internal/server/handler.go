@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -15,7 +16,7 @@ type userCreator interface {
 
 type userVerifier interface {
 	Login(ctx context.Context, email, password string) (string, *time.Time, error)
-}
+
 
 type AuthHandler struct {
 	SignupSvc userCreator
