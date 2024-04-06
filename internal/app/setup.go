@@ -16,8 +16,9 @@ import (
 
 func Setup(cfg *config.Config, log *logrus.Logger, db *sql.DB) *server.Server {
 	userR := repository.NewUserRepository()
+	jwtSvc := service.NewJWTService(cfg.JWTCfg)
 	signupSvc := service.NewSignupService(db, userR)
-	loginSvc := service.NewLoginService(db, userR)
+	loginSvc := service.NewLoginService(db, userR, jwtSvc)
 	h := server.NewAuthHandler(signupSvc, loginSvc)
 	return server.NewServer(cfg.ServerCfg, log, h)
 }

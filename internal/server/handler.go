@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -15,7 +14,7 @@ type userCreator interface {
 }
 
 type userVerifier interface {
-	Login(ctx context.Context, email, password string) (string, error)
+	Login(ctx context.Context, email, password string) (string, *time.Time, error)
 }
 
 type AuthHandler struct {
@@ -75,12 +74,18 @@ func (a *AuthHandler) Login(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	jwt, err := a.LoginSvc.Login(ctx, user.Email, user.Password)
-	fmt.Println("JWT: ", jwt)
+	jwt, expireAt, err := a.LoginSvc.Login(ctx, user.Email, user.Password)
 	if err != nil {
 		http.Error(w, "Authorization failed", http.StatusUnauthorized)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK) 
+	payload := model.LoginResponse{
+		Jwt: jwt,
+		ExpireAt: *expireAt,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(payload)
 }

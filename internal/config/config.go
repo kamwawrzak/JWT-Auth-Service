@@ -10,6 +10,7 @@ import (
 type Config struct {
 	ServerCfg ServerCfg `yaml:"server"`
 	DbCfg DbCfg `yaml:"database"`
+	JWTCfg JWTCfg `yaml:"jwt"`
 }
 
 type ServerCfg struct {
@@ -34,6 +35,11 @@ type DsnCfg struct {
 	User string `yaml:"user"`
 	Password string `yaml:"password"`
 	Database string `yaml:"database"`
+}
+
+type JWTCfg struct {
+	SecretKey string `yaml:"secret_key"`
+	TimeToLive time.Duration `yaml:"time_to_live"`
 }
 
 func NewConfig(configPath string) (*Config, error) {
