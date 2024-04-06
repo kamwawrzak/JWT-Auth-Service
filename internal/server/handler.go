@@ -84,8 +84,12 @@ func (a *AuthHandler) Login(w http.ResponseWriter, r *http.Request){
 		Jwt: jwt,
 		ExpireAt: *expireAt,
 	}
-
+	
+	err = json.NewEncoder(w).Encode(payload)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(payload)
 }
