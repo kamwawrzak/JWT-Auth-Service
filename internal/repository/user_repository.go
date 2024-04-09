@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"database/sql"
 
-	mysql "github.com/go-sql-driver/mysql"
+	"github.com/go-sql-driver/mysql"
 
 	"github.com/kamwawrzak/jwt-auth-service/internal/model"
 )
