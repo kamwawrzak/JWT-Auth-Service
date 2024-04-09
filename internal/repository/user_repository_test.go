@@ -19,7 +19,6 @@ func TestGetUser(t *testing.T) {
 
 	repo := NewUserRepository()
 	expectedUser := prepareExampleUser()
-	
 	query := "SELECT id, email, password_hash, created_at FROM users WHERE id = ?"
 
 	rows := sqlmock.NewRows([]string{"id", "email", "password_hash", "created_at"}).
@@ -42,7 +41,6 @@ func TestGetUserByEmail(t *testing.T) {
 
 	repo := NewUserRepository()
 	expectedUser := prepareExampleUser()
-	
 	query := "SELECT id, email, password_hash, created_at FROM users WHERE email = ?"
 
 	rows := sqlmock.NewRows([]string{"id", "email", "password_hash", "created_at"}).
@@ -79,6 +77,7 @@ func TestCreateUserSuccess(t *testing.T){
 	// assert
 	assert.NoError(t, err)
 	assert.Equal(t, expectedUser, actualUser)
+
 }
 
 func TestCreateUserAlreadyExistsError(t *testing.T){
