@@ -10,7 +10,7 @@ import (
 )
 
 type userCreator interface {
-	CreateUser(ctx context.Context, u *model.User) (*model.User, error)
+	CreateUser(ctx context.Context, u *model.SignupInput) (*model.User, error)
 }
 
 type userVerifier interface {
@@ -38,26 +38,38 @@ func (a *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
     ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
     defer cancel()
 
-	var user model.User
+	var input model.SignupInput
 	
-	err := json.NewDecoder(r.Body).Decode(&user)
+	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	_, err = a.SignupSvc.CreateUser(ctx, &user)
+	user, err := a.SignupSvc.CreateUser(ctx, &input)
 	if err != nil {
 		switch err.Error() {
 		case "already exist":
 			http.Error(w, "User already exists", http.StatusConflict)
+		case "passwords don't match":
+			http.Error(w, "Passwords don't match", http.StatusBadRequest)
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	payload := model.SignupResponse{
+		Email: user.Email,
+	}
+	
+	err = json.NewEncoder(w).Encode(payload)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 }
 
 func (a *AuthHandler) Login(w http.ResponseWriter, r *http.Request){

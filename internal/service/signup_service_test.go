@@ -19,6 +19,7 @@ func TestCreateUserSuccess(t *testing.T) {
 	ctx := context.Background()
 
 	signupSvc := NewSignupService(dbMock, repoMock)
+	signupInput := &model.SignupInput{}
 	expectedUser := &model.User{
 		Id: "123",
 		Email: "test@example.com",
@@ -28,7 +29,7 @@ func TestCreateUserSuccess(t *testing.T) {
 	repoMock.On("CreateUser", ctx, dbMock, mock.Anything).Return(expectedUser, nil)
 
 	// act
-	actual, err := signupSvc.CreateUser(ctx, expectedUser)
+	actual, err := signupSvc.CreateUser(ctx, signupInput)
 
 	// assert
 	assert.NoError(t, err)
