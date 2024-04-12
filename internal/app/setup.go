@@ -19,10 +19,9 @@ func Setup(cfg *config.Config, log *logrus.Logger, db *sql.DB) *server.Server {
 	jwtSvc := service.NewJWTService(cfg.JWTCfg)
 	signupSvc := service.NewSignupService(db, userR)
 	loginSvc := service.NewLoginService(db, userR, jwtSvc)
-	h := server.NewAuthHandler(signupSvc, loginSvc)
+	h := server.NewAuthHandler(log, signupSvc, loginSvc)
 	return server.NewServer(cfg.ServerCfg, log, h)
 }
-
 
 func DbConn(cfg *config.DbCfg) (*sql.DB, error) {
 	writerCfg := cfg.Writer
