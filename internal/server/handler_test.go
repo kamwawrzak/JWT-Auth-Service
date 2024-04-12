@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -98,9 +99,10 @@ func TestLoginSuccess(t *testing.T){
 }
 
 func getHandler() (*AuthHandler, *mocks.MockSignupService, *mocks.MockLoginService) {
+	log, _ := test.NewNullLogger()
 	mockLoginSvc := &mocks.MockLoginService{}
 	mockSignupSvc := &mocks.MockSignupService{}
-	handler := NewAuthHandler(mockSignupSvc, mockLoginSvc)
+	handler := NewAuthHandler(log, mockSignupSvc, mockLoginSvc)
 
 	return handler, mockSignupSvc, mockLoginSvc
 }
